@@ -12,9 +12,20 @@ const getUsers = (req, res) => {
     );
 };
 
+const createUser = (req, res) => {
+  User.create(req.body)
+    .then((user) => res.status(201).send(user))
+    .catch((err) =>
+      res.status(500).send({
+        message: "Internal server error",
+        err: err.message,
+        stack: err.stack,
+      })
+    );
+};
+
 const getUserByID = (req, res) => {
-  User.findById(req.params.id)
-    .orFail(() => new Error("User not found"))
+  User.findById(req.params.userId)
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.message === "User not found") {
@@ -31,16 +42,40 @@ const getUserByID = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
-  User.create(req.body)
-    .then((user) => res.status(201).send(user))
-    .catch((err) =>
-      res.status(500).send({
-        message: "Internal server error",
-        err: err.message,
-        stack: err.stack,
-      })
-    );
+const updateProfile = (req, res) => {
+  User.findByIdAndUpdate(req.user._id, req.body)
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.message === "User not found") {
+        res.status(404).send({
+          message: "User not found",
+        });
+      } else {
+        res.status(500).send({
+          message: "Internal server error",
+          err: err.message,
+          stack: err.stack,
+        });
+      }
+    });
 };
 
-module.exports = { getUsers, getUserByID, createUser };
+const updateAvatar = (req, res) => {
+  User.findByIdAndUpdate(req.user._id, req.body)
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.message === "User not found") {
+        res.status(404).send({
+          message: "User not found",
+        });
+      } else {
+        res.status(500).send({
+          message: "Internal server error",
+          err: err.message,
+          stack: err.stack,
+        });
+      }
+    });
+};
+
+module.exports = { getUsers, getUserByID, createUser, updateProfile, updateAvatar };

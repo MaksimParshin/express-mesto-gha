@@ -12,14 +12,26 @@ const getCards = (req, res) => {
     );
 };
 
-const getCardByID = (req, res) => {
-  Card.findById(req.params.id)
-    .orFail(() => new Error("User not found"))
+const createCard = (req, res) => {
+  const { name, link } = req.body;
+  Card.create({ name, link, owner: req.user._id })
+    .then((card) => res.status(201).send(card))
+    .catch((err) =>
+      res.status(500).send({
+        message: "Internal server error",
+        err: err.message,
+        stack: err.stack,
+      })
+    );
+};
+
+const deleteCardByID = (req, res) => {
+  Card.findByIdAndRemove(req.params.cardId)
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === "User not found") {
+      if (err.message === "Card not found") {
         res.status(404).send({
-          message: "User not found",
+          message: "Card not found",
         });
       } else {
         res.status(500).send({
@@ -31,16 +43,54 @@ const getCardByID = (req, res) => {
     });
 };
 
-const createCard = (req, res) => {
-  Card.create({ ...req.body, owner: req.user._id })
-    .then((card) => res.status(201).send(card))
-    .catch((err) =>
-      res.status(500).send({
-        message: "Internal server error",
-        err: err.message,
-        stack: err.stack,
-      })
-    );
+const likeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true }
+  )
+    .then((card) => res.status(200).send(card))
+    .catch((err) => {
+      if (err.message === "Card not found") {
+        res.status(404).send({
+          message: "Card not found",
+        });
+      } else {
+        res.status(500).send({
+          message: "Internal server error",
+          err: err.message,
+          stack: err.stack,
+        });
+      }
+    });
 };
 
-module.exports = { getCards, getCardByID, createCard };
+const dislikeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true }
+  )
+    .then((card) => res.status(200).send(card))
+    .catch((err) => {
+      if (err.message === "Card not found") {
+        res.status(404).send({
+          message: "Card not found",
+        });
+      } else {
+        res.status(500).send({
+          message: "Internal server error",
+          err: err.message,
+          stack: err.stack,
+        });
+      }
+    });
+};
+
+module.exports = {
+  getCards,
+  createCard,
+  deleteCardByID,
+  likeCard,
+  dislikeCard,
+};
