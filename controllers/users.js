@@ -3,59 +3,71 @@ const User = require("../models/user");
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) =>
-      res.status(500).send({
-        message: "Internal server error",
-        err: err.message,
-        stack: err.stack,
-      })
-    );
+    .catch((err) => {
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        return res.status(400).send({ message: "Bed requiest" });
+      } else if (err.message === "Not Found") {
+        return res.status(404).send({ message: "Object not found" });
+      } else {
+        return res.status(500).send({
+          message: "Internal server error",
+        });
+      }
+    });
 };
 
 const createUser = (req, res) => {
   User.create(req.body)
     .then((user) => res.status(201).send(user))
-    .catch((err) =>
-      res.status(500).send({
-        message: "Internal server error",
-        err: err.message,
-        stack: err.stack,
-      })
-    );
+    .catch((err) => {
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        return res.status(400).send({ message: "Bed requiest" });
+      } else if (err.message === "Not Found") {
+        return res.status(404).send({ message: "Object not found" });
+      } else {
+        return res.status(500).send({
+          message: "Internal server error",
+        });
+      }
+    });
 };
 
 const getUserByID = (req, res) => {
   User.findById(req.params.userId)
+    .orFail(() => new Error("Not Found"))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.message === "User not found") {
-        res.status(404).send({
-          message: "User not found",
-        });
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        return res.status(400).send({ message: "Bed requiest" });
+      } else if (err.message === "Not Found") {
+        return res.status(404).send({ message: "Object not found" });
       } else {
-        res.status(500).send({
+        return res.status(500).send({
           message: "Internal server error",
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
 };
 
 const updateProfile = (req, res) => {
-const {name, about} = req.body;
-  User.findByIdAndUpdate(req.user._id, {name, about})
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.message === "User not found") {
-        res.status(404).send({
-          message: "User not found",
-        });
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        return res.status(400).send({ message: "Bed requiest" });
+      } else if (err.message === "Not Found") {
+        return res.status(404).send({ message: "Object not found" });
       } else {
-        res.status(500).send({
+        return res.status(500).send({
           message: "Internal server error",
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
@@ -63,21 +75,32 @@ const {name, about} = req.body;
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.message === "User not found") {
-        res.status(404).send({
-          message: "User not found",
-        });
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        return res.status(400).send({ message: "Bed requiest" });
+      } else if (err.message === "Not Found") {
+        return res.status(404).send({ message: "Object not found" });
       } else {
-        res.status(500).send({
+        return res.status(500).send({
           message: "Internal server error",
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
 };
 
-module.exports = { getUsers, getUserByID, createUser, updateProfile, updateAvatar };
+module.exports = {
+  getUsers,
+  getUserByID,
+  createUser,
+  updateProfile,
+  updateAvatar,
+};
