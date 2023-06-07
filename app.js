@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const userRoutes = require("./routes/users");
-const cardRoutes = require("./routes/cards");
+const router = require('./routes')
 const { PORT = 3000 } = process.env;
 const app = express();
 
@@ -17,10 +16,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(userRoutes);
-app.use(cardRoutes);
+app.use(router);
 
-app.use('/', (req, res)=> res.status(404).send({message: 'Invalid router'}))
 app.listen(PORT, () => {
   console.log("listening on");
 });
