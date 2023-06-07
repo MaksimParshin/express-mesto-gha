@@ -58,9 +58,9 @@ const updateProfile = (req, res) => {
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === "ValidationError") {
         return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
-      } else if (err.message === "Not Found") {
+      } else if (err.name === "CastError") {
         return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
       } else {
         return res.status(ERROR_DEFAULT).send({
@@ -82,9 +82,9 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === "ValidationError") {
         return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
-      } else if (err.message === "Not Found") {
+      } else if (err.name === "CastError") {
         return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
       } else {
         return res.status(ERROR_DEFAULT).send({
