@@ -1,31 +1,28 @@
 const User = require("../models/user");
+const {
+  ERROR_INCORRECT_DATA,
+  ERROR_NOT_FOUND,
+  ERROR_DEFAULT,
+} = require("../utils/constants");
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        return res.status(400).send({ message: "Bed requiest" });
-      } else if (err.message === "Not Found") {
-        return res.status(404).send({ message: "Object not found" });
-      } else {
-        return res.status(500).send({
-          message: "Internal server error",
-        });
-      }
-    });
+    .catch((err) =>
+      res.status(500).send({
+        message: "Internal server error",
+      })
+    );
 };
 
 const createUser = (req, res) => {
   User.create(req.body)
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        return res.status(400).send({ message: "Bed requiest" });
-      } else if (err.message === "Not Found") {
-        return res.status(404).send({ message: "Object not found" });
+      if (err.name === "ValidationError") {
+        return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
       } else {
-        return res.status(500).send({
+        return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",
         });
       }
@@ -37,12 +34,12 @@ const getUserByID = (req, res) => {
     .orFail(() => new Error("Not Found"))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        return res.status(400).send({ message: "Bed requiest" });
+      if (err.name === "CastError") {
+        return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
       } else if (err.message === "Not Found") {
-        return res.status(404).send({ message: "Object not found" });
+        return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
       } else {
-        return res.status(500).send({
+        return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",
         });
       }
@@ -61,12 +58,12 @@ const updateProfile = (req, res) => {
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        return res.status(400).send({ message: "Bed requiest" });
+      if (err.name === "CastError") {
+        return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
       } else if (err.message === "Not Found") {
-        return res.status(404).send({ message: "Object not found" });
+        return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
       } else {
-        return res.status(500).send({
+        return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",
         });
       }
@@ -85,12 +82,12 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        return res.status(400).send({ message: "Bed requiest" });
+      if (err.name === "CastError") {
+        return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
       } else if (err.message === "Not Found") {
-        return res.status(404).send({ message: "Object not found" });
+        return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
       } else {
-        return res.status(500).send({
+        return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",
         });
       }
