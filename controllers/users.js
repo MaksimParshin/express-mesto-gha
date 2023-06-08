@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const {
+  STATUS_OK, STATUS_CREATED,
   ERROR_INCORRECT_DATA,
   ERROR_NOT_FOUND,
   ERROR_DEFAULT,
@@ -7,9 +8,9 @@ const {
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.status(STATUS_OK).send(users))
     .catch((err) =>
-      res.status(500).send({
+      res.status(ERROR_DEFAULT).send({
         message: "Internal server error",
       })
     );
@@ -17,7 +18,7 @@ const getUsers = (req, res) => {
 
 const createUser = (req, res) => {
   User.create(req.body)
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(STATUS_CREATED).send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
@@ -32,7 +33,7 @@ const createUser = (req, res) => {
 const getUserByID = (req, res) => {
   User.findById(req.params.userId)
     .orFail(() => new Error("Not Found"))
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(STATUS_OK).send(user))
     .catch((err) => {
       if (err.name === "CastError") {
         return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
@@ -56,7 +57,7 @@ const updateProfile = (req, res) => {
       runValidators: true,
     }
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(STATUS_OK).send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
@@ -80,7 +81,7 @@ const updateAvatar = (req, res) => {
       runValidators: true,
     }
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(STATUS_OK).send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });

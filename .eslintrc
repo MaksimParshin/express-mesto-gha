@@ -1,7 +1,15 @@
 {
-  "extends": "airbnb-base",
-  "linebreak-style": ["error", "windows"],
-  "rules": {
-    "no-underscore-dangle": ["error", {"allow": ["_id"]}]
-  }
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "linebreak-style": ["error", "windows"],
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "rules": {
+      "no-underscore-dangle": ["error", {"allow": ["_id"]}]
+    }
 }
