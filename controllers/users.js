@@ -61,8 +61,6 @@ const updateProfile = (req, res) => {
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
-      } else if (err.name === "CastError") {
-        return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
       } else {
         return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",
@@ -85,8 +83,6 @@ const updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
-      } else if (err.name === "CastError") {
-        return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
       } else {
         return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",
