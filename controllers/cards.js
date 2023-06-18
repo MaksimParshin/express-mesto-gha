@@ -1,6 +1,7 @@
 const Card = require("../models/card");
 const {
-  STATUS_OK, STATUS_CREATED,
+  STATUS_OK,
+  STATUS_CREATED,
   ERROR_INCORRECT_DATA,
   ERROR_NOT_FOUND,
   ERROR_DEFAULT,
@@ -22,7 +23,9 @@ const createCard = (req, res) => {
     .then((card) => res.status(STATUS_CREATED).send(card))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
+        return res
+          .status(ERROR_INCORRECT_DATA)
+          .send({ message: "Bed requiest" });
       } else {
         return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",
@@ -32,14 +35,27 @@ const createCard = (req, res) => {
 };
 
 const deleteCardByID = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  const { _id } = req.user;
+  Card.findById(req.params.cardId)
     .orFail(() => new Error("Not Found"))
-    .then((card) => res.status(STATUS_OK).send(card))
+    .then((card) => {
+      if (card.owner.toString() !== _id) {
+        return Promise.reject(new Error("Невозможно удалить карточку"));
+      }
+      return Card.findByIdAndDelete(cardId).then(() =>
+        res.send({ message: "Card deleted" })
+      );
+    })
+
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
+        return res
+          .status(ERROR_INCORRECT_DATA)
+          .send({ message: "Bed requiest" });
       } else if (err.message === "Not Found") {
-        return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
+        return res
+          .status(ERROR_NOT_FOUND)
+          .send({ message: "Object not found" });
       } else {
         return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",
@@ -58,9 +74,13 @@ const likeCard = (req, res) => {
     .then((card) => res.status(STATUS_OK).send(card))
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
+        return res
+          .status(ERROR_INCORRECT_DATA)
+          .send({ message: "Bed requiest" });
       } else if (err.message === "Not Found") {
-        return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
+        return res
+          .status(ERROR_NOT_FOUND)
+          .send({ message: "Object not found" });
       } else {
         return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",
@@ -79,9 +99,13 @@ const dislikeCard = (req, res) => {
     .then((card) => res.status(STATUS_OK).send(card))
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(ERROR_INCORRECT_DATA).send({ message: "Bed requiest" });
+        return res
+          .status(ERROR_INCORRECT_DATA)
+          .send({ message: "Bed requiest" });
       } else if (err.message === "Not Found") {
-        return res.status(ERROR_NOT_FOUND).send({ message: "Object not found" });
+        return res
+          .status(ERROR_NOT_FOUND)
+          .send({ message: "Object not found" });
       } else {
         return res.status(ERROR_DEFAULT).send({
           message: "Internal server error",

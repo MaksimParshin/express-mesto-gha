@@ -35,15 +35,15 @@ const createUser = (req, res, next) => {
     .catch(next);
 };
 
-  //   if (err.name === "ValidationError") {
-    //     return res
-    //       .status(ERROR_INCORRECT_DATA)
-    //       .send({ message: "Bed requiest" });
-    //   } else {
-    //     return res.status(ERROR_DEFAULT).send({
-    //       message: "Internal server error",
-    //     });
-    //   }
+//   if (err.name === "ValidationError") {
+//     return res
+//       .status(ERROR_INCORRECT_DATA)
+//       .send({ message: "Bed requiest" });
+//   } else {
+//     return res.status(ERROR_DEFAULT).send({
+//       message: "Internal server error",
+//     });
+//   }
 
 const getUserByID = (req, res) => {
   User.findById(req.params.userId)
@@ -156,6 +156,29 @@ const login = (req, res) => {
       }
     });
 };
+
+const currentUser = (req, res) => {
+  const { _id } = req.user;
+  User.findById(_id)
+    .orFail(new Error("Not ID"))
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res
+          .status(ERROR_INCORRECT_DATA)
+          .send({ message: "Bed requiest" });
+      } else if (err.message === "Not Found") {
+        return res
+          .status(ERROR_NOT_FOUND)
+          .send({ message: "Object not found" });
+      } else {
+        return res.status(ERROR_DEFAULT).send({
+          message: "Internal server error",
+        });
+      }
+    });
+};
+
 module.exports = {
   getUsers,
   getUserByID,
@@ -163,4 +186,5 @@ module.exports = {
   updateProfile,
   updateAvatar,
   login,
+  currentUser
 };
