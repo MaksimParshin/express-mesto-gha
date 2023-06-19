@@ -122,7 +122,7 @@ const login = (req, res, next) => {
           });
           res.send(user.toJSON());
         } else {
-          res.status(401).send({ message: "Неправильные данные для входа" });
+          res.status(401).send({  message: err.message });
         }
       });
     })
