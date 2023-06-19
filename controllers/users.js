@@ -4,10 +4,10 @@ const bcrypt = require("bcryptjs");
 const {
   STATUS_OK,
   STATUS_CREATED,
-  ERROR_INCORRECT_DATA,
-  ERROR_NOT_FOUND,
   ERROR_DEFAULT,
 } = require("../utils/constants");
+const NotFoundError = require("../middlewares/not-found-err");
+const IncorrectDataError = require("../middlewares/incorrect-data-err");
 
 const getUsers = (req, res) => {
   User.find({})
@@ -32,41 +32,31 @@ const createUser = (req, res, next) => {
         password: hashedPassword,
       }).then((user) => res.status(STATUS_CREATED).send(user));
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        next(new IncorrectDataError("Bed requiest"));
+      } else {
+        next(err);
+      }
+    });
 };
 
-//   if (err.name === "ValidationError") {
-//     return res
-//       .status(ERROR_INCORRECT_DATA)
-//       .send({ message: "Bed requiest" });
-//   } else {
-//     return res.status(ERROR_DEFAULT).send({
-//       message: "Internal server error",
-//     });
-//   }
-
-const getUserByID = (req, res) => {
+const getUserByID = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => new Error("Not Found"))
     .then((user) => res.status(STATUS_OK).send(user))
     .catch((err) => {
       if (err.name === "CastError") {
-        return res
-          .status(ERROR_INCORRECT_DATA)
-          .send({ message: "Bed requiest" });
+        next(new IncorrectDataError("Bed requiest"));
       } else if (err.message === "Not Found") {
-        return res
-          .status(ERROR_NOT_FOUND)
-          .send({ message: "Object not found" });
+        next(new NotFoundError("Object not found"));
       } else {
-        return res.status(ERROR_DEFAULT).send({
-          message: "Internal server error",
-        });
+        next(err);
       }
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -79,18 +69,14 @@ const updateProfile = (req, res) => {
     .then((user) => res.status(STATUS_OK).send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res
-          .status(ERROR_INCORRECT_DATA)
-          .send({ message: "Bed requiest" });
+        next(new IncorrectDataError("Bed requiest"));
       } else {
-        return res.status(ERROR_DEFAULT).send({
-          message: "Internal server error",
-        });
+        next(err);
       }
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -103,18 +89,14 @@ const updateAvatar = (req, res) => {
     .then((user) => res.status(STATUS_OK).send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res
-          .status(ERROR_INCORRECT_DATA)
-          .send({ message: "Bed requiest" });
+        next(new IncorrectDataError("Bed requiest"));
       } else {
-        return res.status(ERROR_DEFAULT).send({
-          message: "Internal server error",
-        });
+        next(err);
       }
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   // if (!email || !password) {
@@ -140,41 +122,24 @@ const login = (req, res) => {
           });
           res.send(user.toJSON());
         } else {
-          res.status(403).send({ message: "Неправильные данные для входа" });
+          res.status(401).send({ message: "Неправильные данные для входа" });
         }
       });
     })
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res
-          .status(ERROR_INCORRECT_DATA)
-          .send({ message: "Bed requiest" });
-      } else {
-        return res.status(ERROR_DEFAULT).send({
-          message: "Internal server error",
-        });
-      }
-    });
 };
 
-const currentUser = (req, res) => {
+const currentUser = (req, res, next) => {
   const { _id } = req.user;
   User.findById(_id)
     .orFail(new Error("Not ID"))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "CastError") {
-        return res
-          .status(ERROR_INCORRECT_DATA)
-          .send({ message: "Bed requiest" });
+        next(new IncorrectDataError("Bed requiest"));
       } else if (err.message === "Not Found") {
-        return res
-          .status(ERROR_NOT_FOUND)
-          .send({ message: "Object not found" });
+        next(new NotFoundError("Object not found"));
       } else {
-        return res.status(ERROR_DEFAULT).send({
-          message: "Internal server error",
-        });
+        next(err);
       }
     });
 };
@@ -186,5 +151,5 @@ module.exports = {
   updateProfile,
   updateAvatar,
   login,
-  currentUser
+  currentUser,
 };
